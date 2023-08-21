@@ -1,0 +1,22 @@
+#[wordpress]
+#192.168.1.108 user=node1 user_password=node1asieeo233 mysql_password=my1asieeo233 domain=192.168.1.108 user_url="http://{{ domain }}/"
+#192.168.1.81  user=node2 user_password=node2asieeo233 mysql_password=my2asieeo233 domain=192.168.1.81  user_url="http://{{ domain }}/"
+#[wordpress:vars]
+#user_title="'Mon blog'"
+
+wordpress:
+  hosts:
+    192.168.1.108:
+      user: node2
+      user_password: node2asieeo233
+      mysql_password: my2asieeo233
+      domain: "192.168.1.108"
+      user_url: "http://{{ domain }}/"
+    192.168.1.81:
+      user: node1
+      user_password: nod1e2asieeo233
+      mysql_password: my1asieeo233
+      domain: "192.168.1.81"
+      user_url: "http://{{ domain }}/"
+  vars:
+    user_title: "'Mon blog'"

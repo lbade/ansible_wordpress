@@ -1,0 +1,50 @@
+---
+- name: apt-get upadate/upgrade
+  apt:
+    
+    update_cache: yes
+    upgrade: 'yes'
+    cache_valid_time: 84600
+
+- name: set MySQL root password before installing
+  debconf:
+    name: 'mysql-server'
+    question: 'mysql-server/root_password'
+    value: '{{ mysql_password | quote }}'
+    vtype: 'password'
+
+- name: confirm MySQL root password before installing
+  debconf:
+    name: 'mysql-server'
+    question: 'mysql-server/root_password'
+    value: '{{ mysql_password | quote }}'
+    vtype: 'password'
+
+- name: Install a list of packages
+  apt:
+    pkg:
+    - apache2
+    - mysql-server
+    - python3-mysqldb
+    - php
+    - php-mysql
+    - php-mbstring
+    - libapache2-mod-php
+
+- name: remove default virtualhost
+  command: a2dissite 000-default.conf
+  args:
+    removes: /etc/apache2/sites-enabled/000-default.conf
+  notify: relancer Apache
+
+- name: virtualhost
+  template:
+    src: templates/wordpress.conf
+    dest: /etc/apache2/sites-available/wordpress.conf
+
+- name: add wordpress.conf
+  command: a2ensite wordpress.conf
+  args:
+    creates: /etc/apache2/sites-enabled/wordpress.conf
+  notify: relancer Apache
+

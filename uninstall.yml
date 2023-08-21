@@ -1,0 +1,36 @@
+---
+- name: uninstalle wordpress
+  hosts: wordpress
+  gather_facts: false
+
+  tasks:
+    - name: stop service
+      service: name={{ item }} state=stopped
+      with_items:
+        - apache2
+        - mysql
+
+    - name: a2disstite wordpress
+      command: a2dissite wordpress.conf
+      args:
+        removes: /etc/apache2/site-enabled/wordpress.conf
+
+    - name: Remove pakages
+      apt:
+        state: absent
+        pkg:
+        - mysql-server
+        - mysql-server-8.0
+        - python3-mysqldb
+        - apache2
+
+    - name: Delete files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/apache2/sites-available/wordpress.conf
+        - /var/www/wordpress
+        - /var/lib/mysql
+
+  

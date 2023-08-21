@@ -1,0 +1,15 @@
+---
+wp_cli_phar_url: https://raw.github.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+wp_cli_bin_path: "/usr/bin/wp"
+
+# Dictionary Variables
+# wp_plugins:
+#   name: akismet
+#   version: 4.0.8
+#   name: broken-link-checker
+#   version: 1.9.5
+
+# Json
+wp_plugins:
+  - { name: akismet, version: 4.0.8 }
+  - { name: broken-link-checker, version: 1.9.5 }

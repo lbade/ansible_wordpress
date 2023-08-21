@@ -1,0 +1,67 @@
+---
+- name: download wp-cli
+  get_url: 
+    url: "{{ wp_cli_phar_url }}"
+    dest: "{{ wp_cli_bin_path }}"
+    force: true
+    owner: root
+    group: root
+    mode: 0755
+    timeout: 30
+
+- name: check if wordpress directory exist
+  stat:
+    path: /var/www/wordpress
+  register: wordpress_dir
+
+- debug:
+    var: wordpress_dir.stat.exists
+
+- name: mkdir /var/www/wordpress
+  file:
+    path: /var/www/wordpress
+    state: directory
+  when: not wordpress_dir.stat.exists
+
+- name: download wordpress
+  command: >
+    wp --allow-root core download --version=4.9.12 --locale=fr_FR
+    chdir=/var/www/wordpress
+  when: not wordpress_dir.stat.exists
+
+- name: install wordpress
+  command: >
+    wp --allow-root config create --dbname=wordpress --dbuser=wordpress --dbpass={{ mysql_password }} --locale=fr_FR
+    chdir=/var/www/wordpress
+  args:
+    creates: /var/www/wordpress/wp-config.php
+
+- name: configure wordpress
+  command: >
+    wp --allow-root core install --url={{ user_url }} --title={{ user_title }} --admin_user={{ user }} --admin_email=devnull@imingo.net --admin_password={{ user_password }}
+    chdir=/var/www/wordpress
+
+- name: chown wordpress
+  file:
+    dest: /var/www/wordpress
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: replace DocumentRoot
+  lineinfile:
+    path: /etc/apache2/sites-available/wordpress.conf
+    regexp: 'DocumentRoot'
+    line: ' DocumentRoot /var/www/wordpress '
+  notify:
+     - relancer Apache 
+
+- name: install plugins
+  command: >
+    wp --allow-root plugin install {{ item.name }} --version={{ item.version }} --activate --path=/var/www/wordpress
+  args:
+    creates: /var/www/wordpress/wp-content/plugins/{{ item.name }}
+  with_items: "{{ wp_plugins }}"
+  when: wp_plugins is defined
+
