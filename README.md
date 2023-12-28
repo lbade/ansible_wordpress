@@ -1,2 +1,4 @@
 # ansible_wordpress
-Mise à jour d'un de mes premiers projet
+
+This is a site deployment method based on Wordpress CMS with ansible.
+Modifications can be made to adapt it to your infrastructure.  
